@@ -1,8 +1,31 @@
-version: '3'
+version: "3"
+
 services:
-  web:
-    build: .
+  db:
+    image: mysql:5.7
+    hostname: mysqlhost
+    volumes:
+      - /var/lib/mysql
+    restart: always
     ports:
-     - "5000:5000"
-  redis:
-    image: "redis:alpine"
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: ciapp
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+
+  ciapp:
+    build: ./app
+    volumes:
+      - ./app:/var/www/html/
+    depends_on:
+      - db
+    restart: always
+    links:
+      - db:mysql
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:
